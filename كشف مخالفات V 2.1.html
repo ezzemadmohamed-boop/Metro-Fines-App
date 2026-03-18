@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>كشف عن فئة تذكرة ممغنطة</title>
+
+<style>
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial;
+    background: linear-gradient(1deg, #00B6A8, #1445A5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #00B6A8;
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 200px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+}
+
+h1 {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 40%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+}
+
+button{
+padding:10px 14px;
+font-size:18px;
+cursor:pointer;
+}
+
+#result{
+margin-top:20px;
+font-size:20px;
+line-height:1;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h3>كشف عن فئة تذكرة ممغنطة</h3>
+
+<div id="myStationDiv">
+<input id="myStation" placeholder="كود محطتك" type="number" inputmode="numeric">
+<br>
+<button onclick="setStation()">موافق</button>
+</div>
+
+<div id="ticketDiv" style="display:none">
+<input id="ticketCode" placeholder="كود التذكرة" type="number" inputmode="numeric">
+<br>
+<button onclick="calc()">بحث</button>
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const names={
+1:"حلوان",2:"عين حلوان",53:"جامعة حلوان",3:"وادي حوف",4:"حدائق حلوان",5:"المعصرة",
+6:"طرة الاسمنت",7:"كوتسيكا",8:"طرة البلد",9:"ثكنات المعادي",10:"المعادي",
+11:"حدائق المعادي",12:"دار السلام",13:"الزهراء",14:"مارجرجس",15:"الملك الصالح",
+16:"السيدة زينب",17:"سعد زغلول",18:"السادات",19:"جمال عبد الناصر",20:"عرابي",
+21:"الشهداء",22:"غمرة",23:"الدمرداش",24:"منشية الصدر",25:"كوبري القبة",
+26:"حمامات القبة",27:"سراي القبة",28:"حدائق الزيتون",29:"حلمية الزيتون",
+30:"المطرية",31:"عين شمس",32:"عزبة النخل",33:"المرج",50:"المرج الجديدة",
+
+34:"شبرا الخيمة",35:"كلية الزراعة",36:"المظلات",37:"الخلفاوي",38:"سانت تريزا",
+39:"روض الفرج",40:"مسرة",41:"العتبة",42:"محمد نجيب",43:"الأوبرا",44:"الدقي",
+45:"البحوث",46:"جامعة القاهرة",47:"فيصل",48:"الجيزة",49:"أم المصريين",
+51:"ساقية مكي",52:"المنيب",
+
+58:"عدلي منصور",59:"الهايكستب",60:"عمر بن الخطاب",61:"قباء",62:"هشام بركات",
+63:"النزهة",64:"نادي الشمس",65:"ألف مسكن",66:"هليوبوليس",67:"هارون",
+68:"الأهرام",69:"كلية البنات",70:"الاستاد",71:"أرض المعارض",72:"العباسية",
+73:"عبده باشا",74:"الجيش",75:"باب الشعرية",76:"ماسبيرو",77:"صفاء حجازي",
+78:"الكيت كات",79:"السودان",80:"امبابة",81:"البوهي",82:"القومية",
+83:"الطريق الدائري",84:"محور روض الفرج",85:"التوفيقية",86:"وادي النيل",
+87:"جامعة الدول",88:"بولاق الدكرور"
+}
+
+const lines=[
+[1,2,53,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,50],
+[34,35,36,37,38,39,40,21,41,42,18,43,44,45,46,47,48,49,51,52],
+[58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,19,76,77,78],
+[78,79,80,81,82,83,84],
+[78,85,86,87,88,46]
+]
+
+let graph={}
+
+function add(a,b){
+if(!graph[a])graph[a]=[]
+if(!graph[b])graph[b]=[]
+graph[a].push(b)
+graph[b].push(a)
+}
+
+lines.forEach(l=>{
+for(let i=0;i<l.length-1;i++){
+add(l[i],l[i+1])
+}
+})
+
+let myStation=0
+
+function setStation(){
+myStation=parseInt(document.getElementById("myStation").value)
+
+document.getElementById("myStationDiv").style.display="none"
+document.getElementById("ticketDiv").style.display="block"
+}
+
+function bfs(start,end){
+
+let q=[[start]]
+let visited=new Set([start])
+
+while(q.length){
+
+let path=q.shift()
+let node=path[path.length-1]
+
+if(node==end) return path
+
+for(let n of (graph[node]||[])){
+
+if(!visited.has(n)){
+visited.add(n)
+q.push([...path,n])
+}
+
+}
+
+}
+
+return null
+}
+
+function calc(){
+
+let code=parseInt(document.getElementById("ticketCode").value)
+
+let path=bfs(code,myStation)
+
+if(!path){
+document.getElementById("result").innerHTML="لا يمكن تحديد المحطة"
+return
+}
+
+let count=path.length
+
+let zones=1
+let full=8
+let half=4
+
+if(count>23){
+zones=4
+full=20
+half=10
+}
+
+else if(count>16){
+zones=3
+full=15
+half=8
+}
+
+else if(count>9){
+zones=2
+full=10
+half=5
+}
+
+document.getElementById("result").innerHTML=
+
+"<b>الراكب سجل دخول من محطة</b><br>"+names[code]+
+"<br><br>"+
+
+"<b>عدد المحطات:</b> "+count+
+"<br>"+
+
+"<b>عدد المناطق:</b> "+zones+
+"<br><br>"+
+
+"<b>السعر كامل:</b> "+full+" جنيه"+
+"<br>"+
+
+"<b>السعر نصف:</b> "+half+" جنيه"
+
+}
+
+</script>
+
+</body>
+</html>
